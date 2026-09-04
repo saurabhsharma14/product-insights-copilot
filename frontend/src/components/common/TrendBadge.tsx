@@ -7,7 +7,7 @@ interface TrendBadgeProps {
 }
 
 export const TrendBadge: React.FC<TrendBadgeProps> = ({ trend }) => {
-  const normalizedTrend = trend.toLowerCase();
+  const normalizedTrend = (trend || 'stable').toLowerCase();
   
   let icon = <Minus size={14} />;
   let colorClass = 'bg-gray-100 text-gray-800';

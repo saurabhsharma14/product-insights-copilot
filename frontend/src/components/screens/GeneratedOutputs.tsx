@@ -63,7 +63,7 @@ export const GeneratedOutputs: React.FC = () => {
 
   // Format initial explainer content for editing
   const explainerInitialContent = fee_explainer ? 
-    `${fee_explainer.customer_confusion_summary}\\n\\n${fee_explainer.bullets.map(b => '• ' + b).join('\\n')}` : '';
+    `${fee_explainer.customer_confusion_summary}\n\n${(fee_explainer.bullets || []).map((b: string) => '• ' + b).join('\n')}` : '';
 
   return (
     <div className="space-y-6">
@@ -79,7 +79,7 @@ export const GeneratedOutputs: React.FC = () => {
         <div className="h-full">
           <EditableTextArea
             title="Weekly Product Pulse"
-            initialValue={product_pulse.content}
+            initialValue={product_pulse.content || (product_pulse as any).summary || ''}
             onSave={handlePulseSave}
             maxWords={250}
           />
@@ -105,7 +105,7 @@ export const GeneratedOutputs: React.FC = () => {
                   Verified Official Sources
                 </h4>
                 <ul className="space-y-2 text-sm">
-                  {fee_explainer.sources.map((source, idx) => (
+                  {(fee_explainer.sources || []).map((source: any, idx: number) => (
                     <li key={idx} className="flex flex-col">
                       <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
                         {source.title}

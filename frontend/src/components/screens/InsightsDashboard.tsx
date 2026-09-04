@@ -16,7 +16,9 @@ export const InsightsDashboard: React.FC = () => {
     );
   }
 
-  const { themes, fee_issue, quotes } = analysisResults;
+  const themes = analysisResults.themes || [];
+  const fee_issue = analysisResults.fee_issue;
+  const quotes = analysisResults.quotes || [];
 
   return (
     <div className="space-y-6">
@@ -78,8 +80,8 @@ export const InsightsDashboard: React.FC = () => {
               </div>
               <p className="text-sm text-gray-600 mb-4 flex-grow">{theme.description}</p>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-500 font-medium">{theme.percentage.toFixed(1)}% of reviews</span>
-                <span className="text-gray-500 font-medium">Avg Rating: {theme.avg_rating.toFixed(1)}</span>
+                <span className="text-gray-500 font-medium">{(theme.percentage || 0).toFixed(1)}% of reviews</span>
+                <span className="text-gray-500 font-medium">Avg Rating: {(theme.avg_rating || 0).toFixed(1)}</span>
               </div>
             </div>
           ))}
@@ -99,7 +101,7 @@ export const InsightsDashboard: React.FC = () => {
                 <Quote size={24} className="text-gray-200 absolute top-2 right-2" />
                 <p className="text-sm text-gray-800 italic mb-2 relative z-10">"{quote.quote}"</p>
                 <div className="flex justify-between items-center text-xs text-gray-500 mt-3 pt-2 border-t border-gray-100">
-                  <span>{new Date(quote.date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })} IST</span>
+                  <span>{quote.date ? new Date(quote.date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) + ' IST' : 'N/A'}</span>
                   <span className="bg-gray-100 px-2 py-0.5 rounded">{quote.theme}</span>
                   <span className="text-yellow-500 font-bold">★ {quote.rating}</span>
                 </div>
@@ -127,13 +129,13 @@ export const InsightsDashboard: React.FC = () => {
                 </div>
                 <div className="bg-white p-2 rounded border border-gray-100">
                   <span className="block text-gray-500 text-xs">Share of Corpus</span>
-                  <span className="font-bold text-gray-900">{(fee_issue.share_of_corpus * 100).toFixed(1)}%</span>
+                  <span className="font-bold text-gray-900">{((fee_issue.share_of_corpus || 0) * 100).toFixed(1)}%</span>
                 </div>
               </div>
               <div>
                 <span className="block text-gray-800 text-sm font-semibold mb-2">Representative Complaints:</span>
                 <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {fee_issue.representative_complaints.map((c, i) => (
+                  {(fee_issue.representative_complaints || []).map((c: string, i: number) => (
                     <li key={i}>{c}</li>
                   ))}
                 </ul>
