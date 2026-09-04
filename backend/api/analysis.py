@@ -257,16 +257,23 @@ async def inject_mock():
         
         fee_explainer = {
             "fee_name": "Account Maintenance Charge (AMC)",
-            "user_confusion": "Users are confused because the marketing materials claim 'Zero AMC', but they are being charged ₹120 quarterly.",
-            "explanation_for_user": "We understand the confusion. Groww offers Zero AMC for the first year. From the second year onwards, a nominal maintenance charge of ₹120 per quarter applies to keep your account active and secure.",
-            "suggested_ui_changes": [
-                "Add a clear tooltip next to 'Zero AMC' mentioning 'for 1st year'.",
-                "Send an in-app notification 30 days before the first AMC deduction.",
-                "Create a dedicated 'Charges & Fees' transparent dashboard in the profile section."
+            "customer_confusion_summary": "Users are confused because the marketing materials claim 'Zero AMC', but they are being charged ₹120 quarterly. They do not realize this only applies to the first year.",
+            "bullets": [
+                "Groww offers Zero AMC for the first year.",
+                "From the second year onwards, a nominal maintenance charge of ₹120 per quarter applies.",
+                "This fee is to keep your account active and secure as per standard depository regulations.",
+                "Deductions happen at the end of each quarter automatically."
             ],
-            "official_sources_used": [
-                "https://groww.in/help/stocks/brokerage-and-charges/what-are-the-account-opening-and-maintenance-charges-on-groww"
-            ]
+            "sources": [
+                {
+                    "url": "https://groww.in/help/stocks/brokerage-and-charges/what-are-the-account-opening-and-maintenance-charges-on-groww",
+                    "title": "Account Opening and Maintenance Charges on Groww",
+                    "domain": "groww.in",
+                    "extracted_info": "Groww charges 0 AMC for the first year. Rs 120 per quarter applies from the second year.",
+                    "date_checked": "2026-09-04T12:00:00Z"
+                }
+            ],
+            "last_checked": "2026-09-04T12:00:00Z"
         }
         
         import json
