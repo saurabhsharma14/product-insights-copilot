@@ -14,9 +14,16 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Make sure to configure your .env file with necessary API keys (GROQ_API_KEY, TAVILY_API_KEY, etc.)
+# Configure your .env file with necessary API keys (GROQ_API_KEY, TAVILY_API_KEY, etc.)
+# IMPORTANT: Set DATABASE_URL to your Neon PostgreSQL connection string
+# Example: DATABASE_URL=postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/dbname?sslmode=require
 uvicorn api.main:app --reload --port 8000
 ```
+
+### Deployment (Render & Neon)
+- **Database**: This project uses **Neon (PostgreSQL)** for persistence because ephemeral platforms like Render wipe SQLite databases on restart.
+- **Backend**: Deployed on **Render** using a Web Service. Ensure `DATABASE_URL` is configured in Render's environment variables.
+- **Frontend**: Deployed on **Vercel**.
 
 ### 2. Frontend Setup
 Navigate to the `frontend` directory and start the Vite dev server:

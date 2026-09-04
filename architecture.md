@@ -90,7 +90,7 @@ This document defines the complete technical architecture for the **Groww AI Pro
 | **Web Scraping** | `httpx` + `BeautifulSoup4` | Retrieve official Groww documentation for fee verification |
 | **Gmail Integration** | Google Gmail API (`google-api-python-client`) | Create Gmail drafts (OAuth 2.0) |
 | **Document Store** | Google Docs API or local JSON append | Internal knowledge repository |
-| **Database** | SQLite (via `aiosqlite`) | Persistent review storage, analysis results, and audit trail |
+| **Database** | PostgreSQL (via `asyncpg`) | Persistent review storage, analysis results, and audit trail |
 | **State Management** | Zustand (frontend) | Lightweight React state management for workflow state |
 | **Build Tool** | Vite | Fast frontend build and dev server |
 
@@ -150,7 +150,7 @@ class Settings(BaseSettings):
 
     # Server
     backend_port: int = 8000
-    database_url: str = "sqlite:///./data/groww_intelligence.db"
+    database_url: str = "postgresql://user:pass@host/db"
 
     class Config:
         env_file = ".env"
@@ -179,7 +179,7 @@ groww-product-intelligence/
 │   ├── core/
 │   │   ├── __init__.py
 │   │   ├── config.py                 # Pydantic settings (see §3)
-│   │   └── database.py               # SQLite connection + session management
+│   │   └── database.py               # PostgreSQL connection + session management
 │   │
 │   ├── models/
 │   │   ├── __init__.py
@@ -710,12 +710,12 @@ CREATE TABLE reviews (
     issue_type      TEXT DEFAULT NULL,      -- Complaint / Question / Feature request / Praise / General
     -- Metadata
     batch_id        TEXT NOT NULL,          -- Links reviews to a specific fetch run
-    created_at      TEXT DEFAULT (datetime('now'))
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Themes table
 CREATE TABLE themes (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              SERIAL PRIMARY KEY,
     batch_id        TEXT NOT NULL,
     theme_name      TEXT NOT NULL,
     description     TEXT NOT NULL,
@@ -726,12 +726,12 @@ CREATE TABLE themes (
     trend           TEXT DEFAULT 'Stable',  -- Increasing / Decreasing / Stable / Spiking
     rank_score      REAL NOT NULL,
     rank_position   INTEGER DEFAULT NULL,
-    created_at      TEXT DEFAULT (datetime('now'))
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Fee issues table
 CREATE TABLE fee_issues (
-    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    id                  SERIAL PRIMARY KEY,
     batch_id            TEXT NOT NULL,
     fee_name            TEXT NOT NULL,
     related_review_count INTEGER NOT NULL,
@@ -739,24 +739,24 @@ CREATE TABLE fee_issues (
     observed_misunderstanding TEXT NOT NULL,
     confidence          TEXT NOT NULL,       -- High / Medium / Low
     selection_reason    TEXT NOT NULL,
-    created_at          TEXT DEFAULT (datetime('now'))
+    created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Official sources table
 CREATE TABLE official_sources (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              SERIAL PRIMARY KEY,
     fee_issue_id    INTEGER REFERENCES fee_issues(id),
     url             TEXT NOT NULL,
     title           TEXT NOT NULL,
     domain          TEXT NOT NULL,
     extracted_info  TEXT NOT NULL,
     date_checked    TEXT NOT NULL,
-    created_at      TEXT DEFAULT (datetime('now'))
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Analysis runs table
 CREATE TABLE analysis_runs (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              SERIAL PRIMARY KEY,
     batch_id        TEXT UNIQUE NOT NULL,
     status          TEXT DEFAULT 'pending',  -- pending / running / completed / failed
     review_count    INTEGER DEFAULT 0,
@@ -769,8 +769,8 @@ CREATE TABLE analysis_runs (
     approved_at     TEXT DEFAULT NULL,
     mcp_document_status TEXT DEFAULT NULL,   -- success / failed / null
     mcp_gmail_status    TEXT DEFAULT NULL,   -- success / failed / null
-    created_at      TEXT DEFAULT (datetime('now')),
-    updated_at      TEXT DEFAULT (datetime('now'))
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 

@@ -1,23 +1,13 @@
-import aiosqlite
+import asyncpg
 import os
-from pathlib import Path
+from contextlib import asynccontextmanager
 
 from core.config import settings
 
-# Parse the sqlite path from database_url
-db_path = settings.database_url.replace("sqlite:///", "")
-# Resolve to absolute path relative to backend directory
-base_dir = Path(__file__).resolve().parent.parent
-db_file_path = base_dir / db_path
-
 async def get_db_connection():
-    # Ensure data directory exists
-    db_file_path.parent.mkdir(parents=True, exist_ok=True)
-    conn = await aiosqlite.connect(db_file_path)
-    conn.row_factory = aiosqlite.Row
+    # Connect to PostgreSQL using the database_url from settings
+    conn = await asyncpg.connect(settings.database_url)
     return conn
-
-from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def get_db():
@@ -30,7 +20,7 @@ async def get_db():
 async def init_db():
     conn = await get_db_connection()
     try:
-        await conn.executescript('''
+        await conn.execute('''
         -- Reviews table
         CREATE TABLE IF NOT EXISTS reviews (
             review_id       TEXT PRIMARY KEY,
@@ -49,12 +39,12 @@ async def init_db():
             issue_type      TEXT DEFAULT NULL,      -- Complaint / Question / Feature request / Praise / General
             -- Metadata
             batch_id        TEXT NOT NULL,          -- Links reviews to a specific fetch run
-            created_at      TEXT DEFAULT (datetime('now'))
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         -- Themes table
         CREATE TABLE IF NOT EXISTS themes (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            id              SERIAL PRIMARY KEY,
             batch_id        TEXT NOT NULL,
             theme_name      TEXT NOT NULL,
             description     TEXT NOT NULL,
@@ -65,12 +55,12 @@ async def init_db():
             trend           TEXT DEFAULT 'Stable',  -- Increasing / Decreasing / Stable / Spiking
             rank_score      REAL NOT NULL,
             rank_position   INTEGER DEFAULT NULL,
-            created_at      TEXT DEFAULT (datetime('now'))
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         -- Fee issues table
         CREATE TABLE IF NOT EXISTS fee_issues (
-            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            id                  SERIAL PRIMARY KEY,
             batch_id            TEXT NOT NULL,
             fee_name            TEXT NOT NULL,
             related_review_count INTEGER NOT NULL,
@@ -78,24 +68,24 @@ async def init_db():
             observed_misunderstanding TEXT NOT NULL,
             confidence          TEXT NOT NULL,       -- High / Medium / Low
             selection_reason    TEXT NOT NULL,
-            created_at          TEXT DEFAULT (datetime('now'))
+            created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         -- Official sources table
         CREATE TABLE IF NOT EXISTS official_sources (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            id              SERIAL PRIMARY KEY,
             fee_issue_id    INTEGER REFERENCES fee_issues(id),
             url             TEXT NOT NULL,
             title           TEXT NOT NULL,
             domain          TEXT NOT NULL,
             extracted_info  TEXT NOT NULL,
             date_checked    TEXT NOT NULL,
-            created_at      TEXT DEFAULT (datetime('now'))
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         -- Analysis runs table
         CREATE TABLE IF NOT EXISTS analysis_runs (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            id              SERIAL PRIMARY KEY,
             batch_id        TEXT UNIQUE NOT NULL,
             status          TEXT DEFAULT 'pending',  -- pending / running / completed / failed
             review_count    INTEGER DEFAULT 0,
@@ -110,10 +100,9 @@ async def init_db():
             approved_at     TEXT DEFAULT NULL,
             mcp_document_status TEXT DEFAULT NULL,   -- success / failed / null
             mcp_gmail_status    TEXT DEFAULT NULL,   -- success / failed / null
-            created_at      TEXT DEFAULT (datetime('now')),
-            updated_at      TEXT DEFAULT (datetime('now'))
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         ''')
-        await conn.commit()
     finally:
         await conn.close()

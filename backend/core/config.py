@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # Server
     backend_port: int = 8000
     frontend_port: int = 5173
-    database_url: str = "sqlite:///./data/groww_intelligence.db"
+    database_url: str = "postgresql://user:password@localhost/groww_intelligence"
 
     class Config:
         env_file = ".env"

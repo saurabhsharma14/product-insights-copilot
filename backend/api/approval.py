@@ -149,17 +149,16 @@ def _build_document_entry(batch_id: str, batch_data: dict) -> dict:
 async def _load_batch_data(batch_id: str) -> dict:
     """Load all analysis data for a batch from SQLite."""
     async with get_db() as db:
-        cursor = await db.execute(
+        row = await db.fetchrow(
             """
             SELECT review_count, review_period_start, review_period_end,
                    avg_rating, themes, fee_issues, product_pulse, fee_explainer,
                    approval_status, approved_at
             FROM analysis_runs
-            WHERE batch_id = ?
+            WHERE batch_id = $1
             """,
-            (batch_id,),
+            batch_id,
         )
-        row = await cursor.fetchone()
 
     if not row:
         raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' not found")
@@ -309,19 +308,16 @@ async def execute_approval(batch_id: str, req: ApproveRequest = ApproveRequest()
             """
             UPDATE analysis_runs
             SET approval_status = 'approved',
-                approved_at = ?,
-                mcp_document_status = ?,
-                mcp_gmail_status = ?
-            WHERE batch_id = ?
+                approved_at = $1,
+                mcp_document_status = $2,
+                mcp_gmail_status = $3
+            WHERE batch_id = $4
             """,
-            (
-                approved_at,
-                document_result.status if document_result else None,
-                gmail_result.status if gmail_result else None,
-                batch_id,
-            ),
+            approved_at,
+            document_result.status if document_result else None,
+            gmail_result.status if gmail_result else None,
+            batch_id,
         )
-        await db.commit()
 
     return ApprovalResult(
         batch_id=batch_id,
@@ -341,10 +337,9 @@ async def reject_approval(batch_id: str):
 
     async with get_db() as db:
         await db.execute(
-            "UPDATE analysis_runs SET approval_status = 'rejected' WHERE batch_id = ?",
-            (batch_id,),
+            "UPDATE analysis_runs SET approval_status = 'rejected' WHERE batch_id = $1",
+            batch_id,
         )
-        await db.commit()
 
     return {
         "batch_id": batch_id,
@@ -357,16 +352,15 @@ async def reject_approval(batch_id: str):
 async def get_approval_status(batch_id: str):
     """Return the current approval status and MCP action results for a batch."""
     async with get_db() as db:
-        cursor = await db.execute(
+        row = await db.fetchrow(
             """
             SELECT approval_status, approved_at,
                    mcp_document_status, mcp_gmail_status
             FROM analysis_runs
-            WHERE batch_id = ?
+            WHERE batch_id = $1
             """,
-            (batch_id,),
+            batch_id,
         )
-        row = await cursor.fetchone()
 
     if not row:
         raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' not found")

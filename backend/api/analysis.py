@@ -28,8 +28,7 @@ def _push_event(batch_id: str, step: str, status: str, message: str):
 async def run_analysis_pipeline(batch_id: str):
     try:
         async with get_db() as db:
-            async with db.execute("SELECT * FROM reviews WHERE batch_id = ?", (batch_id,)) as cursor:
-                rows = await cursor.fetchall()
+            rows = await db.fetch("SELECT * FROM reviews WHERE batch_id = $1", batch_id)
                 
         if not rows:
             _push_event(batch_id, "Error", "error", "No reviews found for this batch")
@@ -96,17 +95,15 @@ async def run_analysis_pipeline(batch_id: str):
             
             await db.execute("""
                 UPDATE analysis_runs 
-                SET themes = ?, fee_issues = ?, status = 'completed'
-                WHERE batch_id = ?
-            """, (themes_json, fee_issue_json, batch_id))
+                SET themes = $1, fee_issues = $2, status = 'completed'
+                WHERE batch_id = $3
+            """, themes_json, fee_issue_json, batch_id)
             
             await db.execute("""
                 UPDATE analysis_runs 
-                SET product_pulse = ?, fee_explainer = ?
-                WHERE batch_id = ?
-            """, (pulse_json, explainer_json, batch_id))
-            
-            await db.commit()
+                SET product_pulse = $1, fee_explainer = $2
+                WHERE batch_id = $3
+            """, pulse_json, explainer_json, batch_id)
 
         _push_event(batch_id, "Analysis complete", "done", "Pipeline finished")
     except Exception as e:
@@ -151,8 +148,7 @@ async def stream_analysis(batch_id: str):
 @router.get("/results/{batch_id}")
 async def get_results(batch_id: str):
     async with get_db() as db:
-        async with db.execute("SELECT themes, fee_issues, product_pulse, fee_explainer, review_count FROM analysis_runs WHERE batch_id = ?", (batch_id,)) as cursor:
-            row = await cursor.fetchone()
+        row = await db.fetchrow("SELECT themes, fee_issues, product_pulse, fee_explainer, review_count FROM analysis_runs WHERE batch_id = $1", batch_id)
             if not row:
                 raise HTTPException(status_code=404, detail="Batch not found")
                 
@@ -172,13 +168,12 @@ async def get_results(batch_id: str):
 async def get_analysis_runs():
     """Returns all historical analysis runs for the dashboard."""
     async with get_db() as db:
-        async with db.execute('''
+        rows = await db.fetch('''
             SELECT batch_id, status, review_count, review_period_start, review_period_end, 
                    avg_rating, created_at, approved_at, mcp_document_status, mcp_gmail_status
             FROM analysis_runs 
             ORDER BY created_at DESC
-        ''') as cursor:
-            rows = await cursor.fetchall()
+        ''')
             
     return [{"batch_id": r[0], "status": r[1], "review_count": r[2], 
              "review_period_start": r[3], "review_period_end": r[4], 

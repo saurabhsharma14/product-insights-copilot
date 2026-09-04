@@ -31,7 +31,7 @@ This document defines a structured evaluation framework for the Groww AI Product
 |---|---|---|---|
 | E1.1 | **Backend starts without errors** — `uvicorn main:app --reload` boots on `:8000` | 2 | Run the command; confirm no tracebacks |
 | E1.2 | **Frontend starts without errors** — `npm run dev` boots Vite on `:5173` and renders a shell | 2 | Run the command; confirm browser shows the app |
-| E1.3 | **SQLite auto-creates with correct schema** — tables `reviews`, `themes`, `fee_issues`, `official_sources`, `analysis_runs` exist on first boot | 2 | Inspect `data/groww_insights.db` with `sqlite3 .tables` |
+| E1.3 | **PostgreSQL auto-creates with correct schema** — tables `reviews`, `themes`, `fee_issues`, `official_sources`, `analysis_runs` exist on first boot | 2 | Connect to Postgres and inspect tables |
 | E1.4 | **Environment config loads** — `GET /api/config` returns app name, package ID, lookback weeks | 2 | `curl http://localhost:8000/api/config` |
 | E1.5 | **CORS configured** — Frontend on `:5173` can reach backend on `:8000` without CORS errors | 2 | Open browser console; confirm no CORS errors |
 | E1.6 | **Pydantic models defined** — `ReviewRecord`, `Theme`, `FeeIssue`, `OfficialSource`, `ProductPulse`, `FeeExplainer`, `ApprovalStatus`, `MCPActionResult` | 2 | Grep for model classes |
