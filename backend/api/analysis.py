@@ -179,3 +179,102 @@ async def get_analysis_runs():
                  "review_period_start": r[3], "review_period_end": r[4], 
                  "avg_rating": r[5], "created_at": r[6], "approved_at": r[7],
                  "document_action_status": r[8], "gmail_action_status": r[9]} for r in rows]
+
+@router.post("/inject-mock")
+async def inject_mock():
+    async with get_db() as db:
+        row = await db.fetchrow("SELECT batch_id FROM analysis_runs WHERE status='completed' ORDER BY created_at DESC LIMIT 1")
+        if not row:
+            raise HTTPException(status_code=404, detail="No completed runs found")
+            
+        batch_id = row['batch_id']
+        
+        themes = [
+            {
+                "theme_name": "Hidden Charges & AMC",
+                "description": "Users complain about unexpected account maintenance charges and hidden fees when trying to close accounts.",
+                "review_count": 342,
+                "percentage": 41.5,
+                "negative_count": 310,
+                "avg_rating": 1.2,
+                "trend": "Spiking",
+                "rank_score": 9.8,
+                "representative_review_ids": []
+            },
+            {
+                "theme_name": "Smooth Onboarding",
+                "description": "Users praise the simple and paperless KYC process during initial account setup.",
+                "review_count": 215,
+                "percentage": 25.1,
+                "negative_count": 5,
+                "avg_rating": 4.8,
+                "trend": "Stable",
+                "rank_score": 5.4,
+                "representative_review_ids": []
+            },
+            {
+                "theme_name": "App Crashes",
+                "description": "Frequent crashes reported during peak trading hours resulting in missed opportunities.",
+                "review_count": 128,
+                "percentage": 14.8,
+                "negative_count": 120,
+                "avg_rating": 1.5,
+                "trend": "Increasing",
+                "rank_score": 8.1,
+                "representative_review_ids": []
+            }
+        ]
+        
+        fee_issue = {
+            "fee_name": "Account Maintenance Charge (AMC)",
+            "related_review_count": 342,
+            "share_of_corpus": 41.5,
+            "observed_misunderstanding": "Users are confused because the marketing materials claim 'Zero AMC', but they are being charged ₹120 quarterly. They do not realize this only applies to the first year or specific account tiers.",
+            "confidence": "High",
+            "selection_reason": "High frequency of complaints specifically mentioning 'hidden fees' and '₹120' in relation to account closure."
+        }
+        
+        product_pulse = {
+            "title": "High Friction in Fee Transparency & Stability",
+            "summary": "While onboarding remains a strong acquisition channel due to its seamless UX, user retention is severely threatened by unexpected AMC charges and app instability during market open. Immediate communication clarity regarding the fee structure is required.",
+            "word_count": 45,
+            "top_themes_summary": "AMC charges are the dominant negative theme, followed by app stability issues during market hours.",
+            "user_voice_quotes": [
+                {
+                    "quote": "They say 0 AMC but I still got charged when selling. Very confusing pricing model.",
+                    "theme": "Hidden Charges & AMC",
+                    "rating": 2,
+                    "review_id": "mock-1"
+                }
+            ],
+            "key_observation": "AMC confusion accounts for 41% of all negative reviews this week.",
+            "product_actions": [
+                "Add a clear tooltip next to 'Zero AMC' mentioning 'for 1st year'.",
+                "Send an in-app notification 30 days before the first AMC deduction.",
+                "Create a dedicated 'Charges & Fees' transparent dashboard in the profile section."
+            ]
+        }
+        
+        fee_explainer = {
+            "fee_name": "Account Maintenance Charge (AMC)",
+            "user_confusion": "Users are confused because the marketing materials claim 'Zero AMC', but they are being charged ₹120 quarterly.",
+            "explanation_for_user": "We understand the confusion. Groww offers Zero AMC for the first year. From the second year onwards, a nominal maintenance charge of ₹120 per quarter applies to keep your account active and secure.",
+            "suggested_ui_changes": [
+                "Add a clear tooltip next to 'Zero AMC' mentioning 'for 1st year'.",
+                "Send an in-app notification 30 days before the first AMC deduction.",
+                "Create a dedicated 'Charges & Fees' transparent dashboard in the profile section."
+            ],
+            "official_sources_used": [
+                "https://groww.in/help/stocks/brokerage-and-charges/what-are-the-account-opening-and-maintenance-charges-on-groww"
+            ]
+        }
+        
+        import json
+        await db.execute('''
+            UPDATE analysis_runs 
+            SET themes = $1, fee_issues = $2, product_pulse = $3, fee_explainer = $4
+            WHERE batch_id = $5
+        ''', json.dumps(themes), json.dumps(fee_issue), json.dumps(product_pulse), json.dumps(fee_explainer), batch_id)
+        
+        return {"status": "success", "message": f"Injected mock data into batch {batch_id}"}
+
