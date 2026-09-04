@@ -96,7 +96,7 @@ async def google_auth_status():
         "docs_authenticated": is_docs_authed,
         "fully_authenticated": is_gmail_authed and is_docs_authed,
         "login_url": "/api/auth/google/login",
-        "secret_path_found": _SECRET_PATH.exists(),
+        "secret_path_found": _SECRET_PATH.exists() or "GOOGLE_CLIENT_SECRET_JSON" in os.environ,
     }
 
 
@@ -106,21 +106,29 @@ async def google_login():
     Initiate the Google OAuth consent flow.
     Redirects the user to Google's authorization page.
     """
-    if not _SECRET_PATH.exists():
+    secret_json = os.environ.get("GOOGLE_CLIENT_SECRET_JSON")
+    if not _SECRET_PATH.exists() and not secret_json:
         raise HTTPException(
             status_code=503,
             detail=(
                 f"OAuth client secret not found at: {_SECRET_PATH}. "
-                "Please set GOOGLE_CLIENT_SECRET_PATH environment variable."
+                "Please set GOOGLE_CLIENT_SECRET_JSON or GOOGLE_CLIENT_SECRET_PATH environment variable."
             ),
         )
 
     try:
-        flow = Flow.from_client_secrets_file(
-            str(_SECRET_PATH),
-            scopes=ALL_SCOPES,
-            redirect_uri=_REDIRECT_URI,
-        )
+        if secret_json:
+            flow = Flow.from_client_config(
+                json.loads(secret_json),
+                scopes=ALL_SCOPES,
+                redirect_uri=_REDIRECT_URI,
+            )
+        else:
+            flow = Flow.from_client_secrets_file(
+                str(_SECRET_PATH),
+                scopes=ALL_SCOPES,
+                redirect_uri=_REDIRECT_URI,
+            )
         auth_url, state = flow.authorization_url(
             access_type="offline",
             include_granted_scopes="true",
@@ -155,12 +163,21 @@ async def google_callback(code: str = "", state: str = "", error: str = ""):
         raise HTTPException(status_code=400, detail="No authorization code received")
 
     try:
-        flow = Flow.from_client_secrets_file(
-            str(_SECRET_PATH),
-            scopes=ALL_SCOPES,
-            redirect_uri=_REDIRECT_URI,
-            state=state,
-        )
+        secret_json = os.environ.get("GOOGLE_CLIENT_SECRET_JSON")
+        if secret_json:
+            flow = Flow.from_client_config(
+                json.loads(secret_json),
+                scopes=ALL_SCOPES,
+                redirect_uri=_REDIRECT_URI,
+                state=state,
+            )
+        else:
+            flow = Flow.from_client_secrets_file(
+                str(_SECRET_PATH),
+                scopes=ALL_SCOPES,
+                redirect_uri=_REDIRECT_URI,
+                state=state,
+            )
 
         # Restore code_verifier if it exists in state
         if state in _oauth_state and _oauth_state[state].get("code_verifier"):
