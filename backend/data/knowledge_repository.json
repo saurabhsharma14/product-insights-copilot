@@ -1,0 +1,36 @@
+[
+  {
+    "appended_at": "2026-09-04T08:29:00.069701+00:00",
+    "batch_id": "48893c7d-b806-4307-bfb2-ef3066296c6e",
+    "review_period": "2026-08-28T08:14:56.074810+00:00 to 2026-09-04T08:14:56.074810+00:00",
+    "review_count": 50,
+    "avg_rating": 4.16,
+    "top_themes": [
+      "Scalping Feature Navigation Issues",
+      "Request for Advanced Trading Tools",
+      "App Performance and Stability"
+    ],
+    "fee_issue": null,
+    "fee_confidence": null,
+    "product_pulse": "**Top Themes Summary:**\nThe most prominent theme is 'Scalping Feature Navigation Issues,' which is currently spiking. Users report that the new scalping feature interferes with standard navigation, causing accidental order placements when using the back button or interacting with charts. Secondary themes include requests for advanced trading tools and app performance issues, both of which are decreasing in volume.\n\n**User Voice:**\nUsers are frustrated with the latest update, specifically noting that the Android back button is difficult to use because it accidentally triggers the scalping option. For example, one user stated, 'it's difficult to press back button because of automatically going to touch scalping option.' Meanwhile, active traders are expressing satisfaction with recent updates but are requesting advanced features like dynamic trailing profit and customizable algo trading to compete with platforms like Fyers. Additionally, some users report technical glitches, such as the app getting stuck and 5-minute charts not working properly.\n\n**Key Observation:**\nThe introduction of the scalping feature has created a critical usability conflict with standard navigation controls, leading to accidental order placements and significant user frustration, as evidenced by the spiking trend and low average rating of 1.0 for this theme.\n\n**Product Actions:**\n1. Redesign the touch targets for the scalping feature to prevent accidental activation when users interact with the back button or chart area.\n2. Prioritize the development of dynamic trailing stop-loss and customizable algo trading features to meet the demands of active traders.\n3. Investigate and resolve app stability issues, specifically focusing on the app getting stuck and chart loading problems reported by users.\n",
+    "fee_explainer": null,
+    "generated_at": "2026-09-04T08:28:59.842051+00:00"
+  },
+  {
+    "appended_at": "2026-09-04T08:39:13.024726+00:00",
+    "batch_id": "48893c7d-b806-4307-bfb2-ef3066296c6e",
+    "review_period": "2026-08-28T08:14:56.074810+00:00 to 2026-09-04T08:14:56.074810+00:00",
+    "review_count": 50,
+    "avg_rating": 4.16,
+    "top_themes": [
+      "Scalping Feature Navigation Issues",
+      "Request for Advanced Trading Tools",
+      "App Performance and Stability"
+    ],
+    "fee_issue": null,
+    "fee_confidence": null,
+    "product_pulse": "**Top Themes Summary:**\nThe most prominent theme is 'Scalping Feature Navigation Issues,' which is currently spiking. Users report that the new scalping feature interferes with standard navigation, causing accidental order placements when using the back button or interacting with charts. Secondary themes include requests for advanced trading tools and app performance issues, both of which are decreasing in volume.\n\n**User Voice:**\nUsers are frustrated with the latest update, specifically noting that the Android back button is difficult to use because it accidentally triggers the scalping option. For example, one user stated, 'it's difficult to press back button because of automatically going to touch scalping option.' Meanwhile, active traders are expressing satisfaction with recent updates but are requesting advanced features like dynamic trailing profit and customizable algo trading to compete with platforms like Fyers. Additionally, some users report technical glitches, such as the app getting stuck and 5-minute charts not working properly.\n\n**Key Observation:**\nThe introduction of the scalping feature has created a critical usability conflict with standard navigation controls, leading to accidental order placements and significant user frustration, as evidenced by the spiking trend and low average rating of 1.0 for this theme.\n\n**Product Actions:**\n1. Redesign the touch targets for the scalping feature to prevent accidental activation when users interact with the back button or chart area.\n2. Prioritize the development of dynamic trailing stop-loss and customizable algo trading features to meet the demands of active traders.\n3. Investigate and resolve app stability issues, specifically focusing on the app getting stuck and chart loading problems reported by users.\n",
+    "fee_explainer": null,
+    "generated_at": "2026-09-04T08:39:13.021863+00:00"
+  }
+]

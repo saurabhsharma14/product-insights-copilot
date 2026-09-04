@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-groww-primary: #00d09c;
+  --color-groww-dark: #121212;
+  --color-groww-light: #f8fafc;
+  --color-groww-gray: #f1f5f9;
+}
+
+@layer base {
+  body {
+    @apply bg-groww-gray text-groww-dark antialiased;
+  }
+}
