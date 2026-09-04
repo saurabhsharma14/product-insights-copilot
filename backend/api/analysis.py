@@ -149,20 +149,20 @@ async def stream_analysis(batch_id: str):
 async def get_results(batch_id: str):
     async with get_db() as db:
         row = await db.fetchrow("SELECT themes, fee_issues, product_pulse, fee_explainer, review_count FROM analysis_runs WHERE batch_id = $1", batch_id)
-            if not row:
-                raise HTTPException(status_code=404, detail="Batch not found")
-                
-            product_pulse = json.loads(row[2]) if row[2] else None
-            quotes = product_pulse.get("user_voice_quotes", []) if product_pulse else []
+        if not row:
+            raise HTTPException(status_code=404, detail="Batch not found")
             
-            return {
-                "themes": json.loads(row[0]) if row[0] else [],
-                "fee_issue": json.loads(row[1]) if row[1] else None,
-                "product_pulse": product_pulse,
-                "fee_explainer": json.loads(row[3]) if row[3] else None,
-                "quotes": quotes,
-                "review_count": row[4] or 0
-            }
+        product_pulse = json.loads(row[2]) if row[2] else None
+        quotes = product_pulse.get("user_voice_quotes", []) if product_pulse else []
+        
+        return {
+            "themes": json.loads(row[0]) if row[0] else [],
+            "fee_issue": json.loads(row[1]) if row[1] else None,
+            "product_pulse": product_pulse,
+            "fee_explainer": json.loads(row[3]) if row[3] else None,
+            "quotes": quotes,
+            "review_count": row[4] or 0
+        }
 
 @router.get("/runs")
 async def get_analysis_runs():
@@ -175,7 +175,7 @@ async def get_analysis_runs():
             ORDER BY created_at DESC
         ''')
             
-    return [{"batch_id": r[0], "status": r[1], "review_count": r[2], 
-             "review_period_start": r[3], "review_period_end": r[4], 
-             "avg_rating": r[5], "created_at": r[6], "approved_at": r[7],
-             "document_action_status": r[8], "gmail_action_status": r[9]} for r in rows]
+        return [{"batch_id": r[0], "status": r[1], "review_count": r[2], 
+                 "review_period_start": r[3], "review_period_end": r[4], 
+                 "avg_rating": r[5], "created_at": r[6], "approved_at": r[7],
+                 "document_action_status": r[8], "gmail_action_status": r[9]} for r in rows]
