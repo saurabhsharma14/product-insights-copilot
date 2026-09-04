@@ -17,7 +17,7 @@ pip install -r requirements.txt
 # Configure your .env file with necessary API keys (GROQ_API_KEY, TAVILY_API_KEY, etc.)
 # IMPORTANT: Set DATABASE_URL to your Neon PostgreSQL connection string
 # Example: DATABASE_URL=postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/dbname?sslmode=require
-uvicorn api.main:app --reload --port 8000
+uvicorn main:app --reload --port 8000
 ```
 
 ### Deployment (Render & Neon)
