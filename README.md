@@ -1,6 +1,10 @@
 # Product Insights Copilot: Groww
 
-Groww AI Product Feedback Intelligence \u0026 Support Workflow is a full-stack application that ingests real Google Play reviews for the Groww Android app, runs an AI-powered analysis pipeline, and produces a Weekly Product Pulse and Customer Fee Explainer.
+Groww AI Product Feedback Intelligence & Support Workflow is a full-stack application that ingests real Google Play reviews for the Groww Android app, runs an AI-powered analysis pipeline, and produces a Weekly Product Pulse and Customer Fee Explainer.
+
+**Live Demo:**
+- **Frontend:** https://product-insights-copilot-groww.vercel.app/
+- **Backend API:** https://product-insights-copilot.onrender.com
 
 ---
 

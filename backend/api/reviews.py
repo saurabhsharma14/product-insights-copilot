@@ -53,7 +53,7 @@ async def run_autonomous_pipeline():
     cleaned_reviews, stats = cleaner.clean(raw_reviews)
     
     # Cap the number of reviews to prevent hitting LLM token limits
-    MAX_REVIEWS = 50
+    MAX_REVIEWS = 100
     if len(cleaned_reviews) > MAX_REVIEWS:
         logger.info(f"Capping reviews at {MAX_REVIEWS} to avoid LLM limits.")
         cleaned_reviews = cleaned_reviews[:MAX_REVIEWS]
