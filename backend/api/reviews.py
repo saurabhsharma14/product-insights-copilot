@@ -76,7 +76,7 @@ async def run_autonomous_pipeline():
             
         await conn.execute('''
             UPDATE analysis_runs 
-            SET status='completed', review_count=$1, review_period_start=$2, review_period_end=$3, avg_rating=$4
+            SET status='analyzing', review_count=$1, review_period_start=$2, review_period_end=$3, avg_rating=$4
             WHERE batch_id=$5
         ''', len(cleaned_reviews), start_date.isoformat(), end_date.isoformat(), avg_rating, batch_id)
     finally:
@@ -151,7 +151,7 @@ async def fetch_reviews(background_tasks: BackgroundTasks):
             
         await conn.execute('''
             UPDATE analysis_runs 
-            SET status='completed', review_count=$1, review_period_start=$2, review_period_end=$3, avg_rating=$4
+            SET status='analyzing', review_count=$1, review_period_start=$2, review_period_end=$3, avg_rating=$4
             WHERE batch_id=$5
         ''', len(cleaned_reviews), start_date.isoformat(), end_date.isoformat(), avg_rating, batch_id)
     finally:
