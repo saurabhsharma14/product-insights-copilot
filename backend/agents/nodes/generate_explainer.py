@@ -36,17 +36,24 @@ def generate_explainer(state: PipelineState) -> dict:
         HumanMessage(content=f"Generate the Explainer based on this data:\n{context}")
     ]
     
-    result = llm_with_tool.invoke(messages)
-    
-    explainer = FeeExplainer(
-        fee_name=fee_issue.fee_name,
-        customer_confusion_summary=result.customer_confusion_summary,
-        bullets=result.bullets[:6], # Ensure max 6
-        sources=official_sources,
-        last_checked=datetime.utcnow().isoformat() + "Z"
-    )
-    
-    return {
-        "fee_explainer": explainer,
-        "analysis_status": "generate_explainer_completed"
-    }
+    try:
+        result = llm_with_tool.invoke(messages)
+        
+        explainer = FeeExplainer(
+            fee_name=fee_issue.fee_name,
+            customer_confusion_summary=result.customer_confusion_summary,
+            bullets=result.bullets[:6], # Ensure max 6
+            sources=official_sources,
+            last_checked=datetime.utcnow().isoformat() + "Z"
+        )
+        
+        return {
+            "fee_explainer": explainer,
+            "analysis_status": "generate_explainer_completed"
+        }
+    except Exception as e:
+        print(f"--- GENERATE EXPLAINER FAILED: {e} ---")
+        return {
+            "fee_explainer": None,
+            "analysis_status": "generate_explainer_failed"
+        }

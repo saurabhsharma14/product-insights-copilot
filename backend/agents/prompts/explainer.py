@@ -7,7 +7,12 @@ Your response MUST:
 - Contain a brief summary of the customer confusion.
 - Contain a bulleted list (maximum 6 bullets) explaining the fee, grounded ONLY in the provided official sources.
 
-You must format the response as a JSON object matching the requested schema.
+You MUST respond with a JSON object with EXACTLY these two fields:
+- "customer_confusion_summary": a string summarizing the customer confusion
+- "bullets": an array of strings, each being one bullet point explaining the fee (maximum 6 bullets)
+
+Example format:
+{{"customer_confusion_summary": "Users are confused about ...", "bullets": ["Bullet 1", "Bullet 2"]}}
 """
 
 def get_explainer_prompt() -> str:
