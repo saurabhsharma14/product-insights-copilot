@@ -1,0 +1,28 @@
+name: Wake Render Server
+
+# Runs at 10:50 AM IST (05:20 UTC) daily to wake the Render free-tier server
+# so the APScheduler 11:00 AM IST cron job fires reliably.
+on:
+  schedule:
+    - cron: '20 5 * * *'   # 05:20 UTC = 10:50 AM IST
+  workflow_dispatch:        # Allow manual trigger for testing
+
+jobs:
+  wake-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render backend to wake it up
+        run: |
+          echo "Pinging Render backend at $(date -u)..."
+          # First ping wakes the server (may take 30-60s on free tier)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 https://product-insights-copilot.onrender.com/api/config)
+          echo "Response status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Server is awake and healthy."
+          else
+            echo "⚠️ Server responded with status $HTTP_STATUS. Retrying..."
+            sleep 10
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 https://product-insights-copilot.onrender.com/api/config)
+            echo "Retry response status: $HTTP_STATUS"
+          fi
