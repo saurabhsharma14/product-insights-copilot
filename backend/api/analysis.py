@@ -33,7 +33,7 @@ async def run_analysis_pipeline(batch_id: str):
         if not rows:
             _push_event(batch_id, "Error", "error", "No reviews found for this batch (they may all be duplicates from previous runs).")
             async with get_db() as db:
-                await db.execute("UPDATE analysis_runs SET status='failed' WHERE batch_id=$1", batch_id)
+                await db.execute("UPDATE analysis_runs SET status='no_new_reviews' WHERE batch_id=$1", batch_id)
             return
             
         reviews = []

@@ -59,7 +59,7 @@ async def run_autonomous_pipeline():
         cleaned_reviews = cleaned_reviews[:MAX_REVIEWS]
     
     if len(cleaned_reviews) == 0:
-        await conn.execute("UPDATE analysis_runs SET status='failed' WHERE batch_id=$1", batch_id)
+        await conn.execute("UPDATE analysis_runs SET status='no_new_reviews' WHERE batch_id=$1", batch_id)
         await conn.close()
         logger.warning("All retrieved reviews were filtered out.")
         return
@@ -150,7 +150,7 @@ async def fetch_reviews(background_tasks: BackgroundTasks):
         cleaned_reviews = cleaned_reviews[:MAX_REVIEWS]
     
     if len(cleaned_reviews) == 0:
-        await conn.execute("UPDATE analysis_runs SET status='failed' WHERE batch_id=$1", batch_id)
+        await conn.execute("UPDATE analysis_runs SET status='no_new_reviews' WHERE batch_id=$1", batch_id)
         await conn.close()
         raise HTTPException(status_code=400, detail="All retrieved reviews were filtered out.")
         

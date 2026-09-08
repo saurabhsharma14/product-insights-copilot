@@ -6,7 +6,7 @@ import { Activity, MessageSquare, AlertCircle, TrendingUp, Lightbulb, CheckCircl
 
 interface AnalysisRun {
   batch_id: string;
-  status: 'running' | 'analyzing' | 'pending_approval' | 'completed' | 'failed' | 'approved' | 'rejected';
+  status: 'running' | 'analyzing' | 'pending_approval' | 'completed' | 'failed' | 'approved' | 'rejected' | 'no_new_reviews';
   review_count: number | null;
   review_period_start: string | null;
   review_period_end: string | null;
@@ -282,9 +282,12 @@ export function Dashboard() {
                         <Badge variant={
                           run.status === 'completed' ? 'success' :
                           run.status === 'failed' ? 'error' :
+                          run.status === 'no_new_reviews' ? 'neutral' :
                           run.status === 'running' || run.status === 'analyzing' ? 'warning' : 'neutral'
                         }>
-                          {run.status === 'analyzing' ? 'ANALYZING' : run.status.toUpperCase()}
+                          {run.status === 'analyzing' ? 'ANALYZING' : 
+                           run.status === 'no_new_reviews' ? 'No New Reviews since last run' :
+                           run.status.toUpperCase()}
                         </Badge>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600 font-medium">
