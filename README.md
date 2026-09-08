@@ -29,6 +29,12 @@ uvicorn main:app --reload --port 8000
 - **Backend**: Deployed on **Render** using a Web Service. Ensure `DATABASE_URL` is configured in Render's environment variables.
 - **Frontend**: Deployed on **Vercel**.
 
+### Autonomous Pipeline Scheduling
+The daily fetch and analysis pipeline is scheduled via **GitHub Actions** (`.github/workflows/autonomous-pipeline.yml`).
+- Runs daily at **11:00 AM IST** (05:30 UTC).
+- The workflow directly hits the backend `POST /api/reviews/autonomous-run` endpoint.
+- *Note: We use GitHub Actions instead of an in-memory APScheduler because free-tier Render servers spin down after 15 minutes of inactivity, which causes in-memory schedulers to miss their execution window.*
+
 ### 2. Frontend Setup
 Navigate to the `frontend` directory and start the Vite dev server:
 ```bash
