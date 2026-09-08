@@ -4,20 +4,16 @@ from contextlib import asynccontextmanager
 import os
 
 from core.database import init_db
-from services.scheduler import start_scheduler, stop_scheduler
 from api import reviews, analysis, outputs, approval, auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database on startup
     await init_db()
-    # Start background scheduler
-    start_scheduler()
     
     yield
     
     # Cleanup on shutdown
-    stop_scheduler()
 
 app = FastAPI(title="Groww Intelligence API", lifespan=lifespan)
 

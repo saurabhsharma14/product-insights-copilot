@@ -1,0 +1,30 @@
+name: Trigger Autonomous Pipeline
+
+# Runs at 11:00 AM IST (05:30 UTC) daily to fetch reviews and analyze them
+on:
+  schedule:
+    - cron: '30 5 * * *'   # 05:30 UTC = 11:00 AM IST
+  workflow_dispatch:        # Allow manual trigger for testing
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger autonomous pipeline
+        run: |
+          echo "Triggering pipeline at $(date -u)..."
+          # Send POST request to trigger the background task
+          HTTP_STATUS=$(curl -s -X POST -o /dev/null -w "%{http_code}" --max-time 120 https://product-insights-copilot.onrender.com/api/reviews/autonomous-run)
+          echo "Response status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 202 ]; then
+            echo "✅ Pipeline triggered successfully."
+          else
+            echo "⚠️ Server responded with status $HTTP_STATUS. Retrying..."
+            sleep 10
+            HTTP_STATUS=$(curl -s -X POST -o /dev/null -w "%{http_code}" --max-time 120 https://product-insights-copilot.onrender.com/api/reviews/autonomous-run)
+            echo "Retry response status: $HTTP_STATUS"
+            if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 202 ]; then
+              exit 1
+            fi
+          fi

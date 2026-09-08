@@ -88,6 +88,21 @@ async def run_autonomous_pipeline():
     await run_analysis_pipeline(batch_id)
 
 
+class AutonomousRunResponse(BaseModel):
+    message: str
+    status: str
+
+@router.post("/autonomous-run", response_model=AutonomousRunResponse)
+async def trigger_autonomous_run(background_tasks: BackgroundTasks):
+    """
+    Endpoint intended to be triggered by GitHub Actions or another external cron.
+    It launches the autonomous pipeline as a background task.
+    """
+    logger.info("Received request to trigger autonomous pipeline run.")
+    background_tasks.add_task(run_autonomous_pipeline)
+    return {"message": "Autonomous pipeline run started in the background.", "status": "accepted"}
+
+
 class FetchResponse(BaseModel):
     batch_id: str
     stats: dict
