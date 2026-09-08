@@ -31,7 +31,9 @@ async def run_analysis_pipeline(batch_id: str):
             rows = await db.fetch("SELECT * FROM reviews WHERE batch_id = $1", batch_id)
                 
         if not rows:
-            _push_event(batch_id, "Error", "error", "No reviews found for this batch")
+            _push_event(batch_id, "Error", "error", "No reviews found for this batch (they may all be duplicates from previous runs).")
+            async with get_db() as db:
+                await db.execute("UPDATE analysis_runs SET status='failed' WHERE batch_id=$1", batch_id)
             return
             
         reviews = []
@@ -110,6 +112,8 @@ async def run_analysis_pipeline(batch_id: str):
         import traceback
         traceback.print_exc()
         _push_event(batch_id, "Pipeline error", "error", str(e))
+        async with get_db() as db:
+            await db.execute("UPDATE analysis_runs SET status='failed' WHERE batch_id=$1", batch_id)
 
 @router.post("/run/{batch_id}")
 async def run_analysis(batch_id: str, background_tasks: BackgroundTasks):
